@@ -13,32 +13,51 @@ echo "  CNN Autoencoder: Handwritten Digit Reconstruction (0-9) [PyTorch]"
 echo "============================================================================"
 echo ""
 
-# 1. Detect Python 3 (checks PATH, Homebrew, and system binary locations)
+# ----------------------------------------------------------------------------
+# 1. Detect Python binary (checks PATH, Homebrew, and system binary locations)
+# ----------------------------------------------------------------------------
 PYTHON_BIN=""
+OLD_PYTHON_FOUND=""
 
 for candidate in python3 python /opt/homebrew/bin/python3 /usr/local/bin/python3 /usr/bin/python3; do
     if command -v "$candidate" >/dev/null 2>&1; then
         if "$candidate" -c "import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >/dev/null 2>&1; then
             PYTHON_BIN="$candidate"
             break
+        else
+            OLD_PYTHON_FOUND="$candidate"
         fi
     fi
 done
 
 if [ -z "$PYTHON_BIN" ]; then
-    echo "============================================================================"
-    echo "[ERROR] Python 3.9 or higher was not found on this computer."
-    echo ""
-    echo "Please install Python 3.9 or newer:"
-    echo "  - Mac:   brew install python3"
-    echo "  - Linux: sudo apt update && sudo apt install -y python3 python3-venv python3-pip"
-    echo "============================================================================"
-    exit 1
+    if [ -n "$OLD_PYTHON_FOUND" ]; then
+        echo "============================================================================"
+        echo "[ERROR] Found Python ($OLD_PYTHON_FOUND), but it is older than Python 3.9."
+        echo "PyTorch and modern deep learning packages require Python 3.9+."
+        echo "Please install a newer Python version from https://www.python.org/"
+        echo "============================================================================"
+        exit 1
+    else
+        echo "============================================================================"
+        echo "[ERROR] Python was not found on this computer."
+        echo ""
+        echo "Please install Python 3.9 or newer:"
+        echo "  - Mac:   brew install python3"
+        echo "  - Linux: sudo apt update && sudo apt install -y python3 python3-venv python3-pip"
+        echo "============================================================================"
+        exit 1
+    fi
 fi
 
+# ----------------------------------------------------------------------------
+# 2. Verify Python version is 3.9 or newer
+# ----------------------------------------------------------------------------
 echo "[*] Using Python: $PYTHON_BIN"
 
-# 2. Virtual environment management (auto-heals if copied from another computer)
+# ----------------------------------------------------------------------------
+# 3. Virtual environment management (auto-heals if copied from another PC)
+# ----------------------------------------------------------------------------
 VENV_DIR="venv"
 VENV_PY="venv/bin/python"
 
@@ -65,26 +84,37 @@ if [ ! -f "$VENV_PY" ]; then
     echo "[OK] Virtual environment created."
 fi
 
-# 3. Activate virtual environment if activate script exists
+# ----------------------------------------------------------------------------
+# 4. Activate virtual environment
+# ----------------------------------------------------------------------------
 if [ -f "venv/bin/activate" ]; then
     . "venv/bin/activate" 2>/dev/null || source "venv/bin/activate" 2>/dev/null || true
 fi
 
-# 4. Verify dependencies (skips pip if already installed)
+# ----------------------------------------------------------------------------
+# 5. Verify & install dependencies
+# ----------------------------------------------------------------------------
 if "$VENV_PY" -c "import torch, torchvision, flask, numpy, PIL, tqdm" >/dev/null 2>&1; then
     echo "[OK] All required packages are ready."
 else
     echo "[*] Checking and installing dependencies from requirements.txt..."
-    "$VENV_PY" -m pip install --quiet -r requirements.txt 2>/dev/null || \
-    "$VENV_PY" -m pip install -r requirements.txt || {
-        echo "[WARNING] Retrying after pip upgrade..."
+    "$VENV_PY" -m pip install --quiet -r requirements.txt 2>/dev/null || {
+        echo "[WARNING] Quiet pip install had warnings. Upgrading pip and retrying..."
         "$VENV_PY" -m pip install --upgrade pip >/dev/null 2>&1 || true
-        "$VENV_PY" -m pip install -r requirements.txt
+        "$VENV_PY" -m pip install -r requirements.txt || {
+            echo "============================================================================"
+            echo "[ERROR] Failed to install dependencies via pip."
+            echo "Please verify your internet connection on first run and try again."
+            echo "============================================================================"
+            exit 1
+        }
     }
     echo "[OK] Dependencies verified."
 fi
 
-# 5. Check model weights
+# ----------------------------------------------------------------------------
+# 6. Check trained model weights
+# ----------------------------------------------------------------------------
 if [ ! -s "model/saved_model.pt" ]; then
     echo ""
     echo "============================================================================"
@@ -94,7 +124,9 @@ if [ ! -s "model/saved_model.pt" ]; then
     echo ""
     "$VENV_PY" "model/train.py"
     if [ ! -s "model/saved_model.pt" ]; then
+        echo "============================================================================"
         echo "[ERROR] Training did not produce model/saved_model.pt."
+        echo "============================================================================"
         exit 1
     fi
     echo "[OK] Model training completed successfully!"
@@ -102,7 +134,9 @@ else
     echo "[OK] Loaded pre-trained model weights [model/saved_model.pt]."
 fi
 
-# 6. Launch Server (browser opens automatically)
+# ----------------------------------------------------------------------------
+# 7. Launch server (or dry-run check)
+# ----------------------------------------------------------------------------
 if [ "$1" = "--dry-run" ]; then
     echo "[OK] start.sh dry-run verification passed successfully!"
     exit 0

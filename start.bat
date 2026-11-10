@@ -9,7 +9,9 @@ echo   CNN Autoencoder: Handwritten Digit Reconstruction (0-9) [PyTorch]
 echo ============================================================================
 echo.
 
-REM 1. Detect Python command (checks PATH, py launcher, and common install folders)
+REM ----------------------------------------------------------------------------
+REM 1. Detect Python binary (checks py launcher, PATH, and common install folders)
+REM ----------------------------------------------------------------------------
 set "PY_CMD="
 
 REM Check py launcher (official Windows Python launcher)
@@ -58,13 +60,17 @@ if "%PY_CMD%"=="" (
 :FOUND_PYTHON
 if "%PY_CMD%"=="" goto :NO_PYTHON
 
+REM ----------------------------------------------------------------------------
 REM 2. Verify Python version is 3.9 or newer
+REM ----------------------------------------------------------------------------
 %PY_CMD% -c "import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >nul 2>&1
 if errorlevel 1 goto :OLD_PYTHON
 
 echo [*] Using Python: %PY_CMD%
 
+REM ----------------------------------------------------------------------------
 REM 3. Virtual environment management (auto-heals if copied from another PC)
+REM ----------------------------------------------------------------------------
 set "VENV_DIR=venv"
 set "VENV_PY=venv\Scripts\python.exe"
 
@@ -87,12 +93,16 @@ if not exist "%VENV_PY%" (
     echo [OK] Virtual environment created.
 )
 
-REM 4. Activate virtual environment if script exists
+REM ----------------------------------------------------------------------------
+REM 4. Activate virtual environment
+REM ----------------------------------------------------------------------------
 if exist "venv\Scripts\activate.bat" (
     call "venv\Scripts\activate.bat" >nul 2>&1
 )
 
+REM ----------------------------------------------------------------------------
 REM 5. Verify & install dependencies
+REM ----------------------------------------------------------------------------
 "%VENV_PY%" -c "import torch, torchvision, flask, numpy, PIL, tqdm" >nul 2>&1
 if not errorlevel 1 (
     echo [OK] All required packages are ready.
@@ -108,7 +118,9 @@ if not errorlevel 1 (
     echo [OK] Dependencies verified.
 )
 
+REM ----------------------------------------------------------------------------
 REM 6. Check trained model weights
+REM ----------------------------------------------------------------------------
 if not exist "model\saved_model.pt" goto :TRAIN_MODEL
 for %%F in ("model\saved_model.pt") do if %%~zF equ 0 goto :TRAIN_MODEL
 echo [OK] Loaded pre-trained model weights [model\saved_model.pt].
@@ -125,6 +137,9 @@ echo.
 if not exist "model\saved_model.pt" goto :TRAIN_FAILED
 echo [OK] Model training completed successfully!
 
+REM ----------------------------------------------------------------------------
+REM 7. Launch server (or dry-run check)
+REM ----------------------------------------------------------------------------
 :RUN_SERVER
 if "%1"=="--dry-run" (
     echo [OK] start.bat dry-run verification passed successfully!
@@ -143,6 +158,9 @@ popd
 pause
 exit /b 0
 
+REM ----------------------------------------------------------------------------
+REM Error Handlers
+REM ----------------------------------------------------------------------------
 :NO_PYTHON
 echo ============================================================================
 echo [ERROR] Python was not found on this computer.
