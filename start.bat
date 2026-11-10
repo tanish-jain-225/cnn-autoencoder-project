@@ -28,6 +28,15 @@ if "%PY_CMD%"=="" (
     )
 )
 
+REM Check python3 in PATH
+if "%PY_CMD%"=="" (
+    where python3 >nul 2>&1
+    if not errorlevel 1 (
+        python3 -c "import sys" >nul 2>&1
+        if not errorlevel 1 set "PY_CMD=python3"
+    )
+)
+
 REM Check common default Windows installation folders if PATH was not set
 if "%PY_CMD%"=="" (
     for %%V in (313 312 311 310 39) do (
@@ -56,35 +65,44 @@ if errorlevel 1 goto :OLD_PYTHON
 echo [*] Using Python: %PY_CMD%
 
 REM 3. Virtual environment management (auto-heals if copied from another PC)
-if exist "venv\Scripts\python.exe" (
-    venv\Scripts\python.exe -c "import sys" >nul 2>&1
+set "VENV_DIR=venv"
+set "VENV_PY=venv\Scripts\python.exe"
+
+if exist "%VENV_PY%" (
+    "%VENV_PY%" -c "import sys" >nul 2>&1
     if errorlevel 1 (
         echo [*] Detected stale or moved virtual environment from another PC.
         echo [*] Automatically rebuilding environment for this computer...
-        rmdir /s /q venv
+        rmdir /s /q "%VENV_DIR%" >nul 2>&1
     )
 )
 
-if not exist "venv\Scripts\activate.bat" (
+if not exist "%VENV_PY%" (
     echo [*] Setting up isolated virtual environment [venv]...
-    %PY_CMD% -m venv venv
-    if errorlevel 1 goto :VENV_FAILED
+    %PY_CMD% -m venv "%VENV_DIR%" >nul 2>&1
+    if errorlevel 1 (
+        %PY_CMD% -m virtualenv "%VENV_DIR%" >nul 2>&1
+    )
+    if not exist "%VENV_PY%" goto :VENV_FAILED
     echo [OK] Virtual environment created.
 )
 
-REM 4. Activate virtual environment
-call "venv\Scripts\activate.bat"
+REM 4. Activate virtual environment if script exists
+if exist "venv\Scripts\activate.bat" (
+    call "venv\Scripts\activate.bat" >nul 2>&1
+)
 
 REM 5. Verify & install dependencies
-python -c "import torch, torchvision, flask, numpy, PIL, tqdm" >nul 2>&1
+"%VENV_PY%" -c "import torch, torchvision, flask, numpy, PIL, tqdm" >nul 2>&1
 if not errorlevel 1 (
     echo [OK] All required packages are ready.
 ) else (
     echo [*] Checking and installing dependencies from requirements.txt...
-    python -m pip install --quiet -r requirements.txt
+    "%VENV_PY%" -m pip install --quiet -r requirements.txt
     if errorlevel 1 (
-        echo [WARNING] Quiet pip install had warnings. Running standard install...
-        python -m pip install -r requirements.txt
+        echo [WARNING] Quiet pip install had warnings. Upgrading pip and retrying...
+        "%VENV_PY%" -m pip install --upgrade pip >nul 2>&1
+        "%VENV_PY%" -m pip install -r requirements.txt
         if errorlevel 1 goto :PIP_FAILED
     )
     echo [OK] Dependencies verified.
@@ -100,10 +118,10 @@ goto :RUN_SERVER
 echo.
 echo ============================================================================
 echo [*] No trained model found at model\saved_model.pt.
-echo [*] Starting initial training on EMNIST dataset [happens once]...
+echo [*] Starting initial training on EMNIST Digits dataset [happens once]...
 echo ============================================================================
 echo.
-python "model\train.py"
+"%VENV_PY%" "model\train.py"
 if not exist "model\saved_model.pt" goto :TRAIN_FAILED
 echo [OK] Model training completed successfully!
 
@@ -119,7 +137,7 @@ echo [*] Starting CNN Autoencoder server...
 echo ============================================================================
 echo.
 
-python "backend\app.py"
+"%VENV_PY%" "backend\app.py"
 
 popd
 pause
