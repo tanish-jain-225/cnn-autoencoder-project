@@ -108,6 +108,11 @@ if not exist "model\saved_model.pt" goto :TRAIN_FAILED
 echo [OK] Model training completed successfully!
 
 :RUN_SERVER
+if "%1"=="--dry-run" (
+    echo [OK] start.bat dry-run verification passed successfully!
+    popd
+    exit /b 0
+)
 echo.
 echo ============================================================================
 echo [*] Starting CNN Autoencoder server...

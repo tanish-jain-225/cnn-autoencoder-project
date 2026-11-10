@@ -91,6 +91,11 @@ else
 fi
 
 # 6. Launch Server (browser opens automatically)
+if [ "$1" = "--dry-run" ]; then
+    echo "[OK] start.sh dry-run verification passed successfully!"
+    exit 0
+fi
+
 echo ""
 echo "============================================================================"
 echo "[*] Starting CNN Autoencoder server..."
