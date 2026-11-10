@@ -24,7 +24,6 @@ An end-to-end Generative AI deep learning application: draw any digit (0–9) or
   - **64-D Latent Heatmap:** Interactive 8×8 grid displaying exact values of each compressed latent dimension.
   - **Latent Perturbation:** Add controlled random noise ($\pm 15\%$) to latent coordinates to observe manifold stability.
   - **Random Sampling:** Sample random normal vectors from latent space and decode them.
-  - **Latent Morphing / Interpolation:** Linearly interpolate $z(t) = (1 - t)z_A + tz_B$ across 7 steps between characters.
 
 ---
 

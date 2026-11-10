@@ -322,57 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Latent Space Interpolation (Morphing)
-  const runInterpBtn = document.getElementById('runInterpBtn');
-  const interpStrip = document.getElementById('interpStrip');
-
-  function renderCharToDataUrl(char) {
-    const offCanvas = document.createElement('canvas');
-    offCanvas.width = 280;
-    offCanvas.height = 280;
-    const offCtx = offCanvas.getContext('2d');
-    offCtx.fillStyle = '#ffffff';
-    offCtx.fillRect(0, 0, 280, 280);
-    offCtx.fillStyle = '#000000';
-    offCtx.textAlign = 'center';
-    offCtx.textBaseline = 'middle';
-    offCtx.font = 'bold 180px "Inter", "Segoe UI", sans-serif';
-    offCtx.fillText(char, 140, 150);
-    return offCanvas.toDataURL('image/png');
-  }
-
-  runInterpBtn.addEventListener('click', async () => {
-    interpStrip.innerHTML = '<span class="placeholder-text">Computing latent manifold trajectory...</span>';
-    const imgA = renderCharToDataUrl('A');
-    const imgB = renderCharToDataUrl('8');
-
-    try {
-      const res = await fetch('/interpolate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image1: imgA, image2: imgB, steps: 7 }),
-      });
-      const data = await res.json();
-      if (res.ok && data.frames) {
-        interpStrip.innerHTML = '';
-        data.frames.forEach(frame => {
-          const frameDiv = document.createElement('div');
-          frameDiv.className = 'interp-frame';
-          frameDiv.innerHTML = `
-            <img src="${frame.image}" alt="Morph step ${frame.step}" />
-            <span class="interp-label">&alpha;=${frame.alpha}</span>
-          `;
-          interpStrip.appendChild(frameDiv);
-        });
-        showStatus('Latent space trajectory computed: smooth morphing from A to 8!', 'success');
-      } else {
-        interpStrip.innerHTML = `<span class="placeholder-text error">Error: ${data.error}</span>`;
-      }
-    } catch (err) {
-      interpStrip.innerHTML = `<span class="placeholder-text error">Failed: ${err.message}</span>`;
-    }
-  });
-
   // Server Status Polling / Notification
   const statusBadge = document.getElementById('statusBadge');
   const statusBadgeText = document.getElementById('statusBadgeText');

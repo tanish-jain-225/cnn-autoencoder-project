@@ -455,7 +455,7 @@ canvas {
 }
 
 /* Latent Space Visualizer */
-.latent-section, .interpolation-section {
+.latent-section {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -464,7 +464,7 @@ canvas {
   box-shadow: var(--shadow);
 }
 
-.latent-header, .interp-header {
+.latent-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -473,12 +473,12 @@ canvas {
   margin-bottom: 16px;
 }
 
-.latent-header h3, .interp-header h3 {
+.latent-header h3 {
   margin: 0 0 4px 0;
   font-size: 16px;
 }
 
-.latent-header .caption, .interp-header .caption {
+.latent-header .caption {
   text-align: left;
   margin: 0;
 }
@@ -550,52 +550,6 @@ canvas {
 .latent-hover-info {
   font-family: var(--font-mono);
   color: #a5b4fc;
-}
-
-/* Interpolation Section */
-.interp-strip {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  min-height: 120px;
-  overflow-x: auto;
-}
-
-.interp-frame {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.interp-frame img {
-  width: 90px;
-  height: 90px;
-  border: 1px solid #334155;
-  border-radius: var(--radius-sm);
-  image-rendering: pixelated;
-  background: #000000;
-}
-
-.interp-label {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--text-dim);
-}
-
-.placeholder-text {
-  color: var(--text-dim);
-  font-size: 13px;
-  font-style: italic;
-}
-
-.placeholder-text.error {
-  color: #f87171;
 }
 
 /* Status Message */
