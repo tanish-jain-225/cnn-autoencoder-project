@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNN Autoencoder — Alphanumeric Character Reconstruction</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="title-row">
+        <h1>CNN Autoencoder: Character Reconstruction</h1>
+        <div id="statusBadge" class="badge badge-loading">
+          <span class="badge-dot"></span>
+          <span id="statusBadgeText">Checking server...</span>
+        </div>
+      </div>
+      <p class="subtitle">
+        Draw any digit (0–9) or letter (A–Z, a–z). The image is compressed into a
+        <strong>64-dimensional latent vector</strong> by a deep convolutional encoder,
+        then reconstructed back to a 28×28 character by the decoder.
+      </p>
+
+      <div class="stats-ribbon">
+        <div class="stat-item">
+          <span class="stat-label">Architecture</span>
+          <span class="stat-val">CNN Conv2D / ConvTranspose2d</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Dataset</span>
+          <span class="stat-val">EMNIST Balanced (131k samples)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Compression</span>
+          <span class="stat-val">784 &rarr; 64 dims (12.25&times;)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Inference Device</span>
+          <span class="stat-val" id="deviceStat">CPU</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Preset Characters Row -->
+    <div class="presets-section">
+      <span class="presets-label">Quick Presets:</span>
+      <div class="presets-buttons" id="presetsList">
+        <button class="preset-btn" data-char="A">A</button>
+        <button class="preset-btn" data-char="B">B</button>
+        <button class="preset-btn" data-char="G">G</button>
+        <button class="preset-btn" data-char="R">R</button>
+        <button class="preset-btn" data-char="S">S</button>
+        <button class="preset-btn" data-char="3">3</button>
+        <button class="preset-btn" data-char="7">7</button>
+        <button class="preset-btn" data-char="8">8</button>
+        <button class="preset-btn" data-char="e">e</button>
+        <button class="preset-btn" data-char="m">m</button>
+      </div>
+    </div>
+
+    <!-- Main 3 Panels -->
+    <main class="panels">
+      <!-- 1. Input Canvas Panel -->
+      <section class="panel">
+        <div class="panel-header">
+          <h3>1. Your Drawing</h3>
+          <span class="panel-tag">Input 280&times;280</span>
+        </div>
+        
+        <div class="canvas-wrapper">
+          <canvas id="drawCanvas" width="280" height="280"></canvas>
+        </div>
+
+        <div class="toolbar">
+          <div class="tool-group">
+            <button id="drawModeBtn" class="tool-btn active" title="Draw with pen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+              Pen
+            </button>
+            <button id="eraserModeBtn" class="tool-btn" title="Erase strokes">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+              Eraser
+            </button>
+          </div>
+
+          <div class="brush-group">
+            <span class="tool-label">Size:</span>
+            <button class="size-btn" data-size="10" title="Thin">S</button>
+            <button class="size-btn active" data-size="18" title="Medium">M</button>
+            <button class="size-btn" data-size="26" title="Thick">L</button>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button id="clearBtn" class="btn btn-secondary">Clear</button>
+          <button id="uploadTriggerBtn" class="btn btn-secondary" title="Upload an image">Upload</button>
+          <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+          <button id="reconstructBtn" class="btn btn-primary">
+            <span class="btn-text">Reconstruct &rarr;</span>
+            <span class="spinner" style="display: none;"></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. Preprocessed Preview Panel -->
+      <section class="panel">
+        <div class="panel-header">
+          <h3>2. What the Model Saw</h3>
+          <span class="panel-tag">EMNIST 28&times;28</span>
+        </div>
+
+        <div class="preview-wrapper">
+          <img id="inputPreview" class="output-img" alt="Preprocessed input (28x28)" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><rect width='280' height='280' fill='%230b0f19'/><text x='50%25' y='50%25' fill='%23475569' font-size='14' font-family='sans-serif' dominant-baseline='middle' text-anchor='middle'>Awaiting drawing...</text></svg>"/>
+        </div>
+
+        <p class="caption">
+          Cropped, centered, and scaled to 28&times;28 grayscale white-on-black matching EMNIST format.
+        </p>
+
+        <div class="metric-box">
+          <div class="metric-row">
+            <span class="metric-label">Input Shape:</span>
+            <span class="metric-val">1 &times; 1 &times; 28 &times; 28</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Preprocessing:</span>
+            <span class="metric-val">Auto-inversion &amp; BBox Center</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Reconstruction Output Panel -->
+      <section class="panel">
+        <div class="panel-header">
+          <h3>3. Reconstructed Output</h3>
+          <span class="panel-tag">Decoded 28&times;28</span>
+        </div>
+
+        <div class="preview-wrapper">
+          <img id="outputImg" class="output-img" alt="Reconstructed output" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><rect width='280' height='280' fill='%230b0f19'/><text x='50%25' y='50%25' fill='%23475569' font-size='14' font-family='sans-serif' dominant-baseline='middle' text-anchor='middle'>Awaiting reconstruction...</text></svg>"/>
+        </div>
+
+        <p class="caption">
+          Decoded entirely from the 64 latent numbers via transposed convolutions.
+        </p>
+
+        <div class="metric-box" id="metricsDisplay">
+          <div class="metric-row">
+            <span class="metric-label">MSE Loss:</span>
+            <span class="metric-val" id="mseVal">&mdash;</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Reconstruction Fidelity:</span>
+            <span class="metric-val highlight" id="fidelityVal">&mdash;</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Inference Time:</span>
+            <span class="metric-val" id="latencyVal">&mdash;</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Latent Space Visualizer -->
+    <section class="latent-section" id="latentSection">
+      <div class="latent-header">
+        <div>
+          <h3>Latent Vector Representation (64 Dimensions)</h3>
+          <p class="caption">Each cell represents one latent variable in the compressed vector. Hover to view exact value.</p>
+        </div>
+        <div class="latent-controls">
+          <button id="perturbBtn" class="btn btn-secondary btn-sm" title="Add slight random perturbation (+/-10%) to latent code and re-decode">
+            &plusmn; Perturb Latent Code
+          </button>
+          <button id="randomSampleBtn" class="btn btn-secondary btn-sm" title="Sample random latent vector from normal distribution">
+            &sim; Random Sample
+          </button>
+        </div>
+      </div>
+
+      <div class="latent-grid" id="latentGrid">
+        <!-- 64 cells generated dynamically -->
+      </div>
+      <div class="latent-footer">
+        <div class="latent-scale">
+          <span>&minus;Negative</span>
+          <div class="scale-bar"></div>
+          <span>&plus;Positive</span>
+        </div>
+        <span id="hoverValue" class="latent-hover-info">Hover over any cell</span>
+      </div>
+    </section>
+
+    <!-- Latent Space Interpolation (Morphing) Drawer -->
+    <section class="interpolation-section">
+      <div class="interp-header">
+        <div>
+          <h3>Latent Space Morphing (Interpolation)</h3>
+          <p class="caption">Linearly interpolates in latent space between two characters: \(z(t) = (1-t)z_A + tz_B\)</p>
+        </div>
+        <button id="runInterpBtn" class="btn btn-secondary btn-sm">Morph Preset 'A' &rarr; '8'</button>
+      </div>
+      <div class="interp-strip" id="interpStrip">
+        <span class="placeholder-text">Click "Morph Preset" to see smooth character transformation across 7 latent steps.</span>
+      </div>
+    </section>
+
+    <!-- Status message bar -->
+    <div id="statusMessage" class="status-message"></div>
+
+    <footer class="footer">
+      <p>CNN Autoencoder Project &bull; Built with PyTorch &amp; Flask &bull; Handcrafted local GenAI</p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='canvas.js') }}"></script>
+</body>
+</html>
