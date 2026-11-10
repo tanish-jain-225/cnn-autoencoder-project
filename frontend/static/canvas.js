@@ -272,56 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   renderLatentGrid([]);
 
-  // Perturb Latent Vector
-  const perturbBtn = document.getElementById('perturbBtn');
-  perturbBtn.addEventListener('click', async () => {
-    if (!currentLatentVector || currentLatentVector.length === 0) {
-      showStatus('Please draw or choose a preset character first before perturbing.', 'info');
-      return;
-    }
-
-    // Add +/- 15% random noise to latent vector
-    const perturbed = currentLatentVector.map(v => v + (Math.random() - 0.5) * 0.35);
-
-    try {
-      const res = await fetch('/sample', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vector: perturbed }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        document.getElementById('outputImg').src = data.image;
-        currentLatentVector = data.latent_vector;
-        renderLatentGrid(currentLatentVector);
-        showStatus('Latent space perturbed smoothly & re-decoded.', 'success');
-      }
-    } catch (err) {
-      showStatus('Error perturbing: ' + err.message, 'error');
-    }
-  });
-
-  // Random Latent Sample
-  const randomSampleBtn = document.getElementById('randomSampleBtn');
-  randomSampleBtn.addEventListener('click', async () => {
-    try {
-      const res = await fetch('/sample', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        document.getElementById('outputImg').src = data.image;
-        currentLatentVector = data.latent_vector;
-        renderLatentGrid(currentLatentVector);
-        showStatus('Sampled random latent vector from normal distribution.', 'success');
-      }
-    } catch (err) {
-      showStatus('Error sampling: ' + err.message, 'error');
-    }
-  });
-
   // Server Status Polling / Notification
   const statusBadge = document.getElementById('statusBadge');
   const statusBadgeText = document.getElementById('statusBadgeText');

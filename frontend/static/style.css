@@ -483,11 +483,6 @@ canvas {
   margin: 0;
 }
 
-.latent-controls {
-  display: flex;
-  gap: 8px;
-}
-
 .latent-grid {
   display: grid;
   grid-template-columns: repeat(16, 1fr);

@@ -21,9 +21,7 @@ An end-to-end Generative AI deep learning application: draw any digit (0–9) on
   3. *Reconstructed Output* (decoded output from latent vector)
 - **Quantitative Metrics:** Real-time MSE Loss, Reconstruction Fidelity percentage, and inference latency in milliseconds.
 - **Latent Space Exploration:**
-  - **64-D Latent Heatmap:** Interactive 8×8 grid displaying exact values of each compressed latent dimension.
-  - **Latent Perturbation:** Add controlled random noise ($\pm 15\%$) to latent coordinates to observe manifold stability.
-  - **Random Sampling:** Sample random normal vectors from latent space and decode them.
+  - **64-D Latent Heatmap:** Interactive visual grid displaying exact values and polarity of each compressed latent dimension on hover.
 
 ---
 

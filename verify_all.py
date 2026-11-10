@@ -157,8 +157,7 @@ try:
         'drawCanvas', 'drawModeBtn', 'eraserModeBtn', 'clearBtn',
         'uploadTriggerBtn', 'imageFileInput', 'reconstructBtn',
         'inputPreview', 'outputImg', 'mseVal', 'fidelityVal',
-        'latencyVal', 'latentGrid', 'hoverValue', 'perturbBtn',
-        'randomSampleBtn', 'statusBadge'
+        'latencyVal', 'latentGrid', 'hoverValue', 'statusBadge'
     ]
     for dom_id in required_ids:
         assert f'id="{dom_id}"' in html or f"id='{dom_id}'" in html, f'Missing element #{dom_id} in index.html'
