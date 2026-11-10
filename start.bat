@@ -1,11 +1,11 @@
 @echo off
 setlocal
 
-title CNN Autoencoder — Character Reconstruction
+title CNN Autoencoder — Handwritten Digit Reconstruction (0-9)
 pushd "%~dp0"
 
 echo ============================================================================
-echo   CNN Autoencoder: Alphanumeric Character Reconstruction [PyTorch]
+echo   CNN Autoencoder: Handwritten Digit Reconstruction (0-9) [PyTorch]
 echo ============================================================================
 echo.
 

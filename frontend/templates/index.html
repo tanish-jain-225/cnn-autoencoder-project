@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CNN Autoencoder — Alphanumeric Character Reconstruction</title>
+  <title>CNN Autoencoder — Handwritten Digit Reconstruction (0–9)</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,16 +13,16 @@
   <div class="container">
     <header class="header">
       <div class="title-row">
-        <h1>CNN Autoencoder: Character Reconstruction</h1>
+        <h1>CNN Autoencoder: Digit Reconstruction</h1>
         <div id="statusBadge" class="badge badge-loading">
           <span class="badge-dot"></span>
           <span id="statusBadgeText">Checking server...</span>
         </div>
       </div>
       <p class="subtitle">
-        Draw any digit (0–9) or letter (A–Z, a–z). The image is compressed into a
+        Draw any handwritten digit (0–9). The image is compressed into a
         <strong>64-dimensional latent vector</strong> by a deep convolutional encoder,
-        then reconstructed back to a 28×28 character by the decoder.
+        then reconstructed back to a 28×28 digit by the decoder.
       </p>
 
       <div class="stats-ribbon">
@@ -32,7 +32,7 @@
         </div>
         <div class="stat-item">
           <span class="stat-label">Dataset</span>
-          <span class="stat-val">EMNIST Balanced (131k samples)</span>
+          <span class="stat-val">EMNIST Digits (240k samples)</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">Compression</span>
@@ -47,18 +47,18 @@
 
     <!-- Preset Characters Row -->
     <div class="presets-section">
-      <span class="presets-label">Quick Presets:</span>
+      <span class="presets-label">Quick Digit Presets:</span>
       <div class="presets-buttons" id="presetsList">
-        <button class="preset-btn" data-char="A">A</button>
-        <button class="preset-btn" data-char="B">B</button>
-        <button class="preset-btn" data-char="G">G</button>
-        <button class="preset-btn" data-char="R">R</button>
-        <button class="preset-btn" data-char="S">S</button>
+        <button class="preset-btn" data-char="0">0</button>
+        <button class="preset-btn" data-char="1">1</button>
+        <button class="preset-btn" data-char="2">2</button>
         <button class="preset-btn" data-char="3">3</button>
+        <button class="preset-btn" data-char="4">4</button>
+        <button class="preset-btn" data-char="5">5</button>
+        <button class="preset-btn" data-char="6">6</button>
         <button class="preset-btn" data-char="7">7</button>
         <button class="preset-btn" data-char="8">8</button>
-        <button class="preset-btn" data-char="e">e</button>
-        <button class="preset-btn" data-char="m">m</button>
+        <button class="preset-btn" data-char="9">9</button>
       </div>
     </div>
 
@@ -199,7 +199,7 @@
     <div id="statusMessage" class="status-message"></div>
 
     <footer class="footer">
-      <p>CNN Autoencoder Project &bull; Built with PyTorch &amp; Flask &bull; Handcrafted local GenAI</p>
+      <p>CNN Autoencoder Project &bull; Built with PyTorch &amp; Flask &bull; Handwritten Digit Reconstruction (0–9)</p>
     </footer>
   </div>
 

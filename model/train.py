@@ -1,8 +1,8 @@
 """
-Trains the CNN autoencoder on EMNIST and saves weights to model/saved_model.pt.
+Trains the CNN autoencoder on EMNIST Digits (0-9) and saves weights to model/saved_model.pt.
 
 Run directly:  python model/train.py
-The EMNIST dataset is downloaded automatically on first run and cached in data/.
+The EMNIST dataset is cached locally in data/.
 """
 
 import os
@@ -22,8 +22,8 @@ sys.path.append(os.path.dirname(__file__))
 from autoencoder import ConvAutoencoder
 
 # ---------------- Config ----------------
-SPLIT = "balanced"     # EMNIST split: 'balanced' (47 classes, ~131k images) or 'byclass' (62 classes)
-EPOCHS = 6
+SPLIT = "digits"       # EMNIST split: 'digits' (10 classes: 0-9, 240k train images)
+EPOCHS = 5
 BATCH_SIZE = 256
 LATENT_DIM = 64
 LEARNING_RATE = 1e-3
@@ -52,7 +52,7 @@ transform = transforms.Compose([
 
 def train():
     print("=" * 60)
-    print(" CNN Autoencoder Training — EMNIST Dataset")
+    print(" CNN Autoencoder Training — EMNIST Digits (0-9)")
     print("=" * 60)
     print(f"Device: {DEVICE}")
     if DEVICE.type == "cpu":

@@ -1,6 +1,6 @@
-# CNN Autoencoder — Alphanumeric Character Reconstruction
+# CNN Autoencoder — Handwritten Digit Reconstruction (0–9)
 
-An end-to-end Generative AI deep learning application: draw any digit (0–9) or letter (A–Z, a–z) on an interactive canvas, and a Convolutional Autoencoder (trained on the EMNIST dataset) compresses it into a compact **64-dimensional latent vector** and reconstructs it locally with PyTorch.
+An end-to-end Generative AI deep learning application: draw any digit (0–9) on an interactive canvas, and a Convolutional Autoencoder (trained on the EMNIST Digits dataset) compresses it into a compact **64-dimensional latent vector** and reconstructs it locally with PyTorch.
 
 ---
 
@@ -13,8 +13,8 @@ An end-to-end Generative AI deep learning application: draw any digit (0–9) or
 - **Interactive Web Interface:**
   - **Dual Drawing Tools:** Pen and Eraser with Thin (10px), Medium (18px), and Thick (26px) brush sizes.
   - **Click-to-Dot & Touch Support:** Optimized for desktop mouse and mobile/tablet touch screens.
-  - **Quick Presets:** Instant test characters (`A`, `B`, `G`, `R`, `S`, `3`, `7`, `8`, `e`, `m`).
-  - **Upload Support:** Upload any character image file directly from your computer.
+  - **Quick Digit Presets:** Instant test numbers (`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`).
+  - **Upload Support:** Upload any digit image file directly from your computer.
 - **Side-by-Side Visual Pipeline:**
   1. *Your Drawing* (280×280 interactive canvas)
   2. *What the Model Saw* (28×28 centered, padded, and normalized input)

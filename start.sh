@@ -9,7 +9,7 @@ set -e
 cd "$(dirname "$0")"
 
 echo "============================================================================"
-echo "  CNN Autoencoder: Alphanumeric Character Reconstruction [PyTorch]"
+echo "  CNN Autoencoder: Handwritten Digit Reconstruction (0-9) [PyTorch]"
 echo "============================================================================"
 echo ""
 

@@ -20,14 +20,13 @@ from autoencoder import ConvAutoencoder
 from preprocess import preprocess_canvas_image
 
 
-def create_dummy_character_data_url(char: str = "A") -> str:
-    """Creates a base64 PNG data URL mimicking the HTML canvas drawing."""
+def create_dummy_digit_data_url(char: str = "8") -> str:
+    """Creates a base64 PNG data URL mimicking a drawn handwritten digit (e.g. '8')."""
     img = Image.new("RGB", (280, 280), color=(255, 255, 255))
     draw = ImageDraw.Draw(img)
-    # Draw simple cross-lines
-    draw.line([(50, 230), (140, 50)], fill=(0, 0, 0), width=18)
-    draw.line([(140, 50), (230, 230)], fill=(0, 0, 0), width=18)
-    draw.line([(80, 160), (200, 160)], fill=(0, 0, 0), width=18)
+    # Draw two stacked loops mimicking digit '8'
+    draw.ellipse([(90, 40), (190, 140)], outline=(0, 0, 0), width=18)
+    draw.ellipse([(80, 130), (200, 240)], outline=(0, 0, 0), width=18)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
@@ -36,7 +35,7 @@ def create_dummy_character_data_url(char: str = "A") -> str:
 
 class TestPreprocessing(unittest.TestCase):
     def test_preprocess_character(self):
-        url = create_dummy_character_data_url("A")
+        url = create_dummy_digit_data_url("8")
         arr = preprocess_canvas_image(url)
         self.assertEqual(arr.shape, (28, 28))
         self.assertEqual(arr.dtype, np.float32)
@@ -97,7 +96,7 @@ class TestFlaskEndpoints(unittest.TestCase):
         self.assertEqual(data["latent_dim"], 64)
 
     def test_predict_route(self):
-        url = create_dummy_character_data_url("A")
+        url = create_dummy_digit_data_url("8")
         res = self.client.post("/predict", json={"image": url})
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
@@ -109,8 +108,8 @@ class TestFlaskEndpoints(unittest.TestCase):
         self.assertIn("mse_loss", data["metrics"])
 
     def test_interpolate_route(self):
-        url1 = create_dummy_character_data_url("A")
-        url2 = create_dummy_character_data_url("B")
+        url1 = create_dummy_digit_data_url("3")
+        url2 = create_dummy_digit_data_url("8")
         res = self.client.post("/interpolate", json={"image1": url1, "image2": url2, "steps": 5})
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
