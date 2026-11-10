@@ -61,14 +61,16 @@ if [ ! -f "venv/bin/activate" ]; then
 fi
 
 # 3. Activate virtual environment
-source venv/bin/activate
+if [ -f "venv/bin/activate" ]; then
+    . "venv/bin/activate" 2>/dev/null || source "venv/bin/activate"
+fi
 
 # 4. Verify dependencies (skips pip if already installed)
-if python -c "import torch, torchvision, flask, numpy, PIL, tqdm" 2>/dev/null; then
+if python3 -c "import torch, torchvision, flask, numpy, PIL, tqdm" 2>/dev/null || python -c "import torch, torchvision, flask, numpy, PIL, tqdm" 2>/dev/null; then
     echo "[OK] All required packages are ready."
 else
     echo "[*] Checking and installing dependencies from requirements.txt..."
-    python -m pip install --quiet -r requirements.txt || python -m pip install -r requirements.txt
+    python3 -m pip install --quiet -r requirements.txt 2>/dev/null || python -m pip install --quiet -r requirements.txt || python -m pip install -r requirements.txt
     echo "[OK] Dependencies verified."
 fi
 
@@ -80,7 +82,7 @@ if [ ! -s "model/saved_model.pt" ]; then
     echo "[*] Starting initial training on EMNIST dataset [happens once]..."
     echo "============================================================================"
     echo ""
-    python model/train.py
+    python3 "model/train.py" 2>/dev/null || python "model/train.py"
     if [ ! -s "model/saved_model.pt" ]; then
         echo "[ERROR] Training did not produce model/saved_model.pt."
         exit 1
@@ -102,4 +104,4 @@ echo "[*] Starting CNN Autoencoder server..."
 echo "============================================================================"
 echo ""
 
-python backend/app.py
+python3 "backend/app.py" 2>/dev/null || python "backend/app.py"

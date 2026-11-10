@@ -73,7 +73,7 @@ if not exist "venv\Scripts\activate.bat" (
 )
 
 REM 4. Activate virtual environment
-call venv\Scripts\activate.bat
+call "venv\Scripts\activate.bat"
 
 REM 5. Verify & install dependencies
 python -c "import torch, torchvision, flask, numpy, PIL, tqdm" >nul 2>&1
@@ -103,7 +103,7 @@ echo [*] No trained model found at model\saved_model.pt.
 echo [*] Starting initial training on EMNIST dataset [happens once]...
 echo ============================================================================
 echo.
-python model\train.py
+python "model\train.py"
 if not exist "model\saved_model.pt" goto :TRAIN_FAILED
 echo [OK] Model training completed successfully!
 
@@ -119,7 +119,7 @@ echo [*] Starting CNN Autoencoder server...
 echo ============================================================================
 echo.
 
-python backend\app.py
+python "backend\app.py"
 
 popd
 pause
